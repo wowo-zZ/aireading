@@ -20,10 +20,8 @@ $uploaded_path = $_FILES['input_image']['tmp_name'];
 $save_path = $config['upload_path'] . '/' . time() . '.jpeg';
 move_uploaded_file($uploaded_path, $save_path);
 
-echo ocrRequest($save_path);
-exit;
-
 // ocr
+$content = ocrRequest($save_path);
 
 // tts
 
@@ -55,8 +53,14 @@ function ocrRequest($pic_path)
         'image' => base64EncodeImage($pic_path)
     ]));
 
-    $data = curl_exec($ch);
-    return $data;
+    $data = json_decode(curl_exec($ch), TRUE);
+    $content = '';
+    foreach ($data['data']['block'][0]['line'] as $line) {
+        foreach ($line['word'] as $word) {
+            $content .= $word['content'];
+        }
+    }
+    return $content;
 }
 
 function base64EncodeImage($image_file)
