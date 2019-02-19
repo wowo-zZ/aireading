@@ -16,6 +16,6 @@ $config = [
     'ocr_key' => '373ca8185a9b4013a407b1a55561662f',
 
     // tts app key
-    'tts_api' => '',
+    'tts_api' => 'http://api.xfyun.cn/v1/service/v1/tts',
     'tts_key' => '8ad63b0e47f63909a9b8cd33a4ad43f1',
 ];
