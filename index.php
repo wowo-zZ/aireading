@@ -28,7 +28,10 @@ $content = ocrRequest($save_path);
 $oct_time = time();
 
 // tts
-$tts_path = ttsRequest(substr($content, 1000));
+if (strlen($content) >= 1000) {
+    $content = substr($content, 1000);
+}
+$tts_path = ttsRequest($content, 1000);
 $tts_time = time();
 if ($tts_path) {
     header("Location:/list.php");
