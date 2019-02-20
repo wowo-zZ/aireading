@@ -38,8 +38,17 @@ class DB {
         return $result;
     }
 
-    public function insert($sql)
+    public function insert($save_path, $save_time, $oct_time, $tts_time, $tts_path, $content, $comment)
     {
-
+        $sql = "insert into picture (`save_path`, `save_time`, `ocr_time`, `tts_time`, `tts_path`, `content`, `comment`) VALUE (
+                    '$save_path', 
+                    '$save_time', 
+                    '$oct_time',
+                    '$tts_time',
+                    '$tts_path',
+                    '$content',
+                    '$comment'
+                )";
+        mysqli_query($this->connection, $sql);
     }
 }

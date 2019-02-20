@@ -7,8 +7,9 @@ if (!isset($config)) {
 }
 
 // 检查上传文件
-if (empty($_FILES['input_image'])) {
-    die('请上传文件后重试!');
+if (empty($_FILES['input_image']['size'])) {
+    header("Location:/list.php");
+    exit();
 }
 
 // 校验文件大小
@@ -19,21 +20,23 @@ if ($_FILES['input_image']['size'] > 3145728) {
 // 上传文件
 $uploaded_path = $_FILES['input_image']['tmp_name'];
 $save_path = $config['upload_path'] . '/' . time() . '.jpeg';
+$save_time = time();
 move_uploaded_file($uploaded_path, $save_path);
 
 // ocr
 $content = ocrRequest($save_path);
+$oct_time = time();
 
 // tts
-$tts_save_path = ttsRequest($content);
-if ($tts_save_path) {
-    echo "上传成功,<a href='/list.php'>前往查看</a>";
+$tts_path = ttsRequest($content);
+$tts_time = time();
+if ($tts_path) {
+    header("Location:/list.php");
 }
 
 // 存数据库
 $db = new DB($config['db_config']);
-$var_dump($db->connection);
-exit;
+$db->insert($save_path, $save_time, $oct_time, $tts_time, $tts_path, $content, 'comment');
 
 function ocrRequest($pic_path)
 {
@@ -106,10 +109,10 @@ function ttsRequest($content)
     $tts_save_path = '';
 
     if ($header['content_type'] == 'audio/mpeg') {
-        $tts_save_path .= './upload/' . $cur_time . '.mp3';
+        $tts_save_path .= 'upload/' . $cur_time . '.mp3';
         $res = file_put_contents($tts_save_path, $response);
     } else {
-        $tts_save_path .= './upload/' . $cur_time . '.wav';
+        $tts_save_path .= 'upload/' . $cur_time . '.wav';
         $res = file_put_contents($tts_save_path, $response);
     }
     if ($res > 1) {

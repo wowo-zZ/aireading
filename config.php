@@ -6,7 +6,7 @@
  */
 $config = [
     // 设置文件保存路径
-    'upload_path' => '/usr/local/var/www/aireading/upload',
+    'upload_path' => 'upload',
 
     // appid
     'appid' => '5c661a16',
