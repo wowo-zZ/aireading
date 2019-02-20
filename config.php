@@ -18,4 +18,12 @@ $config = [
     // tts app key
     'tts_api' => 'http://api.xfyun.cn/v1/service/v1/tts',
     'tts_key' => '8ad63b0e47f63909a9b8cd33a4ad43f1',
+
+    'db_config' => [
+        'host' => '127.0.0.1',
+        'port' => 3306,
+        'user' => 'root',
+        'password' => '1234',
+        'database' => 'aireading'
+    ]
 ];

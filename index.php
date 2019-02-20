@@ -1,5 +1,6 @@
 <?php
 include "config.php";
+include "db.php";
 
 if (!isset($config)) {
     die('配置错误。');
@@ -22,15 +23,17 @@ move_uploaded_file($uploaded_path, $save_path);
 
 // ocr
 $content = ocrRequest($save_path);
+
 // tts
 $tts_save_path = ttsRequest($content);
 if ($tts_save_path) {
     echo "上传成功,<a href='/list.php'>前往查看</a>";
 }
 
-// tts
-
 // 存数据库
+$db = new DB($config['db_config']);
+$var_dump($db->connection);
+exit;
 
 function ocrRequest($pic_path)
 {
