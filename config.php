@@ -12,7 +12,7 @@ $config = [
     'appid' => '5c661a16',
 
     // ocr
-    'ocr_api' => 'http://webapi.xfyun.cn/v1/service/v1/ocr/general',
+    'ocr_api' => 'http://webapi.xfyun.cn/v1/service/v1/ocr/recognize_document',
     'ocr_key' => '373ca8185a9b4013a407b1a55561662f',
 
     // tts app key

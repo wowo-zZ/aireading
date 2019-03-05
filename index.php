@@ -45,6 +45,7 @@ function ocrRequest($pic_path)
 {
     global $config;
     $x_param = base64_encode(json_encode(array(
+		"engine_type" => "recognize_document",
         "language" => "cn|en",
         "location" => "false",
     )));
@@ -68,11 +69,9 @@ function ocrRequest($pic_path)
     ]));
 
     $data = json_decode(curl_exec($ch), TRUE);
-    $content = '';
-    foreach ($data['data']['block'][0]['line'] as $line) {
-        foreach ($line['word'] as $word) {
-            $content .= $word['content'];
-        }
+	$content = '';
+    foreach ($data['data']['document']['blocks'] as $block) {
+		$content .= $block['lines'][0]['text'];
     }
     return $content;
 }
