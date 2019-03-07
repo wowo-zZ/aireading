@@ -6,7 +6,7 @@
 		<title>AI-Reading</title>
 	</head>
 	<body>
-		<div class="container justify-content-center" style="margin-top:120px;background: #d6ebf5;">
+		<div class="container justify-content-center" style="margin-top:50px;background: #d6ebf5;">
 			<div class="row">
 				<div class="col-md-12">
 					<table class="table table-striped">
@@ -19,7 +19,7 @@
 							<?php foreach($pictures as $picture) { ?>
 							<tr>
 								<td>
-									<img src="<?php echo 'http://aireading.cn/' . $picture['save_path']; ?>" style="height:60%" />
+									<img src="<?php echo 'http://aireading.cn/' . $picture['save_path']; ?>" style="width:400px" />
 								</td>
 								<td>
 									<?php echo $picture['content']; ?>

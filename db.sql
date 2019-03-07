@@ -9,3 +9,14 @@ CREATE TABLE `picture` (
   `comment` varchar(255) DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE picture (
+  id        INTEGER       PRIMARY KEY AUTOINCREMENT,
+  save_path VARCHAR (64),
+  save_time INTEGER,
+  ocr_time  INTEGER,
+  tts_time  INTEGER,
+  content   TEXT,
+  tts_path  VARCHAR (64),
+  comment   VARCHAR (255)
+);

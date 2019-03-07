@@ -6,8 +6,7 @@
  */
 include('config.php');
 include('db.php');
-
-$db = new DB($config['db_config']);
-$pictures = $db->select('select * from picture');
-
+include('db_sqlite.php');
+$db_sqlite = new DB_Sqlite('./sqlite.db');
+$pictures = $db_sqlite->select('select * from picture');
 include('./list.html');

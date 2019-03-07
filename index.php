@@ -1,6 +1,7 @@
 <?php
 include "config.php";
 include "db.php";
+include "db_sqlite.php";
 
 if (!isset($config)) {
     die('配置错误。');
@@ -28,18 +29,18 @@ $content = ocrRequest($save_path);
 $oct_time = time();
 
 // tts
-if (strlen($content) >= 1000) {
-    $content = substr($content, 1000);
+if (mb_strlen($content) >= 300) {
+	$content = mb_substr($content, 0, 300);
 }
-$tts_path = ttsRequest($content, 1000);
+$tts_path = ttsRequest($content);
 $tts_time = time();
 if ($tts_path) {
     header("Location:/list.php");
 }
 
 // 存数据库
-$db = new DB($config['db_config']);
-$db->insert($save_path, $save_time, $oct_time, $tts_time, $tts_path, $content, 'comment');
+$db_sqlite = new DB_Sqlite('./sqlite.db');
+$db_sqlite->insert($save_path, $save_time, $oct_time, $tts_time, $tts_path, $content, 'comment');
 
 function ocrRequest($pic_path)
 {
@@ -87,7 +88,6 @@ function ttsRequest($content)
 {
     global $config;
     $x_param = 'eyJhdWYiOiAiYXVkaW8vTDE2O3JhdGU9MTYwMDAiLCJhdWUiOiAicmF3Iiwidm9pY2VfbmFtZSI6ICJ4aWFveWFuIiwic3BlZWQiOiAiNTAiLCJ2b2x1bWUiOiAiNTAiLCJwaXRjaCI6ICI1MCIsImVuZ2luZV90eXBlIjogImludHA2NSIsInRleHRfdHlwZSI6ICJ0ZXh0In0=';
-
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
