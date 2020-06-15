@@ -19,13 +19,13 @@
 							<?php foreach($pictures as $picture) { ?>
 							<tr>
 								<td>
-									<img src="<?php echo 'http://aireading.cn/' . $picture['save_path']; ?>" style="width:400px" />
+									<img src="<?php echo 'http://localhost/' . $picture['save_path']; ?>" style="width:400px" />
 								</td>
 								<td>
 									<?php echo $picture['content']; ?>
 								</td>
 								<td>
-									<audio src="<?php echo 'http://aireading.cn/' . $picture['tts_path']; ?>" type="audio/mpeg" controls style="height:50px;width:189px;"></audio>
+									<audio src="<?php echo 'http://localhost/' . $picture['tts_path']; ?>" type="audio/mpeg" controls style="height:50px;width:189px;"></audio>
 								</td>
 							</tr>
 							<?php } ?>

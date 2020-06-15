@@ -2,6 +2,7 @@
 include "config.php";
 include "db.php";
 include "db_sqlite.php";
+include 'vendor/autoload.php';
 
 if (!isset($config)) {
     die('配置错误。');
@@ -87,39 +88,70 @@ function base64EncodeImage($image_file)
 function ttsRequest($content)
 {
     global $config;
-    $x_param = 'eyJhdWYiOiAiYXVkaW8vTDE2O3JhdGU9MTYwMDAiLCJhdWUiOiAicmF3Iiwidm9pY2VfbmFtZSI6ICJ4aWFveWFuIiwic3BlZWQiOiAiNTAiLCJ2b2x1bWUiOiAiNTAiLCJwaXRjaCI6ICI1MCIsImVuZ2luZV90eXBlIjogImludHA2NSIsInRleHRfdHlwZSI6ICJ0ZXh0In0=';
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_POST, 1);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($ch, CURLOPT_URL, $config['tts_api']);
-    $cur_time = time();
-    $headers = [
-        'X-Appid:' . $config['appid'],
-        'X-CurTime:' . $cur_time,
-        'X-Param:' . $x_param,
-        'X-CheckSum:' . md5($config['tts_key'] . $cur_time . $x_param),
-        'Content-Type:application/x-www-form-urlencoded; charset=utf-8'
+    // 鉴权参数
+    $host = 'tts-api.xfyun.cn';
+    $date = gmstrftime("%a, %d %b %Y %T %Z", time());
+    $request_line = 'GET /v2/tts HTTP/1.1';
+    $appid = $config['appid'];
+    $api_key = $config['ws-tts-key'];
+    $api_secret = $config['ws-tts-secret'];
+    $sign_data = "host: $host\ndate: $date\n$request_line";
+    $signature_sha = hash_hmac('sha256', $sign_data, $api_secret, true);
+    $signature = base64_encode($signature_sha);
+    $authorization_origin = "api_key=\"$api_key\",algorithm=\"hmac-sha256\",headers=\"host date request-line\",signature=\"$signature\"";
+    $authorization = base64_encode($authorization_origin);
+    $params = [
+        'authorization' => $authorization,
+        'date' => $date,
+        'host' => $host
     ];
+    $url = "wss://tts-api.xfyun.cn/v2/tts?" . http_build_query($params);
+    $client = new WebSocket\Client($url);
+    $data_origin = [
+        "common" => [
+            "app_id" => $appid
+        ],
+        "business" => [
+            "vcn" => "xiaoyan",
+            "aue" => "lame",
+            "sfl" => 1,
+            "speed" => 50,
+            "tte" => "UTF8"
+        ],
+        "data" => [
+            "status" => 2,
+            "text" => base64_encode($content)
+        ]
+    ];
+    $data = json_encode($data_origin);
+    $client->send($data);
 
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query([
-        'text' => $content
-    ]));
-
-    $response = curl_exec($ch);
-    $header = curl_getinfo($ch);
-    $tts_save_path = '';
-
-    if ($header['content_type'] == 'audio/mpeg') {
-        $tts_save_path .= 'upload/' . $cur_time . '.mp3';
-        $res = file_put_contents($tts_save_path, $response);
-    } else {
-        $tts_save_path .= 'upload/' . $cur_time . '.wav';
-        $res = file_put_contents($tts_save_path, $response);
+    $result = "";
+    while (true) {
+        try {
+            $message = json_decode($client->receive());
+            switch ($message->data->status) {
+                case 0:
+                    // echo "开始合成\n";
+                    break;
+                case 1:
+                    // echo "合成中，拼接结果...\n";
+                    $result .= base64_decode($message->data->audio);
+                    // echo "目前结果长度：" . strlen($result) . "\n";
+                    break;
+                case 2:
+                    $result .= base64_decode($message->data->audio);
+                    // echo "目前结果长度：" . strlen($result) . "\n";
+                    // echo "合成结束，退出接收数据";
+                    break 2;
+            }
+        } catch (\WebSocket\ConnectionException $e) {
+            break;
+        }
     }
-    if ($res > 1) {
-        return $tts_save_path;
-    } else {
-        return false;
-    }
+    // echo "最终结果数据长度：" . strlen($result) . "\n";
+    $tts_save_path = 'upload/' . time() . '.mp3';
+    file_put_contents($tts_save_path, $result);
+    $client->close();
+    return $tts_save_path;
 }
