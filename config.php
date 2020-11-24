@@ -9,25 +9,25 @@ $config = [
     'upload_path' => 'upload',
 
     // appid
-    'appid' => '5c661a16',
+    'appid' => '',
 
     // ocr
     'ocr_api' => 'http://webapi.xfyun.cn/v1/service/v1/ocr/recognize_document',
-    'ocr_key' => '373ca8185a9b4013a407b1a55561662f',
+    'ocr_key' => '',
 
     // tts app key
     'tts_api' => 'http://api.xfyun.cn/v1/service/v1/tts',
-    'tts_key' => '8ad63b0e47f63909a9b8cd33a4ad43f1',
+    'tts_key' => '',
 
     // ws-tts app key
-    'ws-tts-key' => 'f825cef11af90e483904873b9085d2ab',
-    'ws-tts-secret' => 'ae303da4e4bd4643f85b8ca401b06071',
+    'ws-tts-key' => '',
+    'ws-tts-secret' => '',
 
     'db_config' => [
         'host' => '127.0.0.1',
         'port' => 3306,
         'user' => 'root',
-        'password' => '1234',
+        'password' => '',
         'database' => 'aireading'
     ]
 ];

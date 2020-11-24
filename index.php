@@ -2,7 +2,9 @@
 include "config.php";
 include "db.php";
 include "db_sqlite.php";
-include 'vendor/autoload.php';
+include "vendor/autoload.php";
+
+ttsRequest('目前结果长度，合成结束，退出接收数据');
 
 if (!isset($config)) {
     die('配置错误。');
@@ -88,47 +90,50 @@ function base64EncodeImage($image_file)
 function ttsRequest($content)
 {
     global $config;
-    // 鉴权参数
+
     $host = 'tts-api.xfyun.cn';
-    $date = gmstrftime("%a, %d %b %Y %T %Z", time());
+    $date = gmstrftime("%a, %d %b %Y %T %Z",time());
     $request_line = 'GET /v2/tts HTTP/1.1';
+
     $appid = $config['appid'];
     $api_key = $config['ws-tts-key'];
     $api_secret = $config['ws-tts-secret'];
-    $sign_data = "host: $host\ndate: $date\n$request_line";
-    $signature_sha = hash_hmac('sha256', $sign_data, $api_secret, true);
+
+    $signature_origin = "host: $host\ndate: $date\n$request_line";
+    $signature_sha = hash_hmac('sha256', $signature_origin, $api_secret, true);
     $signature = base64_encode($signature_sha);
+
     $authorization_origin = "api_key=\"$api_key\",algorithm=\"hmac-sha256\",headers=\"host date request-line\",signature=\"$signature\"";
     $authorization = base64_encode($authorization_origin);
     $params = [
         'authorization' => $authorization,
-        'date' => $date,
-        'host' => $host
+        'host' => $host,
+        'date' => $date
     ];
-    $url = "wss://tts-api.xfyun.cn/v2/tts?" . http_build_query($params);
+    $url = 'wss://tts-api.xfyun.cn/v2/tts?' . http_build_query($params);
+
     $client = new WebSocket\Client($url);
-    $data_origin = [
-        "common" => [
-            "app_id" => $appid
+    $data = [
+        'common' => [
+            'app_id' => $appid
         ],
-        "business" => [
-            "vcn" => "xiaoyan",
-            "aue" => "lame",
-            "sfl" => 1,
-            "speed" => 50,
-            "tte" => "UTF8"
+        'business' => [
+            'aue' => 'lame',
+            'sfl' => 1,
+            'vcn' => 'xiaoyan',
+            'tte' => 'UTF8'
         ],
-        "data" => [
-            "status" => 2,
-            "text" => base64_encode($content)
+        'data' => [
+            'text' => base64_encode($content),
+            'status' => 2
         ]
     ];
-    $data = json_encode($data_origin);
-    $client->send($data);
+    $client->send(json_encode($data));
 
     $result = "";
     while (true) {
         try {
+            // 接收数据
             $message = json_decode($client->receive());
             switch ($message->data->status) {
                 case 0:
@@ -142,11 +147,12 @@ function ttsRequest($content)
                 case 2:
                     $result .= base64_decode($message->data->audio);
                     // echo "目前结果长度：" . strlen($result) . "\n";
-                    // echo "合成结束，退出接收数据";
+                    // echo "合成结束，退出接收数据\n";
                     break 2;
             }
+
         } catch (\WebSocket\ConnectionException $e) {
-            break;
+            // 异常处理
         }
     }
     // echo "最终结果数据长度：" . strlen($result) . "\n";

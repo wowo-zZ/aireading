@@ -21,8 +21,8 @@ $signature = base64_encode($signature_sha);
 $authorization_origin = "api_key=\"$api_key\",algorithm=\"hmac-sha256\",headers=\"host date request-line\",signature=\"$signature\"";
 $authorization = base64_encode($authorization_origin);
 $params = [
-    'authorization' => $authorization,
-    'date' => $date,
+    'authorizations' => $authorization,
+    'dates' => $date,
     'host' => $host
 ];
 $url = "wss://tts-api.xfyun.cn/v2/tts?" . http_build_query($params);
