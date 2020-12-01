@@ -1,4 +1,6 @@
 .idea
 upload
 vendor
+config*.php
+.vscode
 
